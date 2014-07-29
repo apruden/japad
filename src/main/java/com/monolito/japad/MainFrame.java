@@ -1,86 +1,69 @@
 package com.monolito.japad;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+/**
+ * 
+ * @author alex
+ *
+ */
 public class MainFrame extends JFrame {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private final RSyntaxTextArea editor;
+	private final JTree tree;
+	private final DefaultMutableTreeNode top;
 
+	/**
+	 * 
+	 */
 	public MainFrame() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("import com.monolito.japad.App;\n\n");
 		sb.append("public class Main {\n");
 		sb.append("\tpublic static void main() {\n");
 		sb.append("\t}\n}\n");
 
 		JPanel cp = new JPanel(new BorderLayout());
-		
-		final RSyntaxTextArea textArea = new RSyntaxTextArea(30, 100);
-		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-		textArea.setCodeFoldingEnabled(true);
-		textArea.setAntiAliasingEnabled(true);
-		textArea.setText(sb.toString());
-		textArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK), "compile");
-		textArea.getActionMap().put("compile", new AbstractAction() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
 
-			/*
-			 * (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
-			public void actionPerformed(ActionEvent e) {
-				try {
-					String compileOutput = new DynamicCompiler().compile("Main", textArea.getText());
-					System.out.println(compileOutput);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
-		});
+		this.editor = new RSyntaxTextArea(30, 100);
+		this.editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+		this.editor.setCodeFoldingEnabled(true);
+		this.editor.setAntiAliasingEnabled(true);
+		this.editor.setText(sb.toString());
+		this.editor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK), "compile");
 
-		RTextScrollPane sp = new RTextScrollPane(textArea);
+		RTextScrollPane sp = new RTextScrollPane(this.editor);
 		sp.setFoldIndicatorEnabled(true);
 		cp.add(sp, BorderLayout.CENTER);
 
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("The Java Series");
-        JTree tree = new JTree(top);
-        tree.getSelectionModel().setSelectionMode
-                (TreeSelectionModel.SINGLE_TREE_SELECTION);
-        //tree.addTreeSelectionListener(...);
-
-        DefaultMutableTreeNode category = null;
-        DefaultMutableTreeNode book = null;
- 
-        category = new DefaultMutableTreeNode("Obj");
-        top.add(category);
-
-        book = new DefaultMutableTreeNode("prop");
-        category.add(book);
-
-        JScrollPane treeView = new JScrollPane(tree);
+		this.top = new DefaultMutableTreeNode("watches");
+		DefaultTreeModel model = new DefaultTreeModel(this.top, true);
+        this.tree = new JTree(model);
+        this.tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        
+        JScrollPane treeView = new JScrollPane(this.tree);
 		cp.add(treeView, BorderLayout.EAST);
 		
 		final JTextArea output = new JTextArea(10, 100);
@@ -96,5 +79,36 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pack();
 		setLocationRelativeTo(null);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public JTextComponent getEditor() {
+		return this.editor;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public JTree getTreeView() {
+		return this.tree;
+	}
+	
+	/**
+	 * 
+	 * @param parent
+	 * @param item
+	 */
+	public void addItem(DefaultMutableTreeNode parent, Object item) {
+		if (parent != null) {
+			DefaultTreeModel model = (DefaultTreeModel)this.tree.getModel();
+			model.insertNodeInto(new DefaultMutableTreeNode(item, true), parent, parent.getChildCount());
+		} else {
+			DefaultTreeModel model = (DefaultTreeModel)this.tree.getModel();
+			model.insertNodeInto(new DefaultMutableTreeNode(item, true), this.top, this.top.getChildCount());
+		}
 	}
 }
