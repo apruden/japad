@@ -20,60 +20,37 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 
 /**
- * <p>Title: MemoryJavaFileManager</p>
- * <p>Description: JavaFileManager that keeps compiled .class bytes in memory.</p> 
- * <p>Project: <a href="https://github.com/nickman/javax-scripting">JSR-233 Java Scripting</a></p>
- * <p>Packaged and maintained by Whitehead (nwhitehead AT heliosdev DOT org)</p>
- * <p><code>com.sun.script.java.MemoryJavaFileManager</code></p>
+ * 
+ * @author alex
+ *
  */
 public final class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {                 
 
-    /** Java source file extension. */
     public final static String EXT = ".java";
-
-    /** The compiled class bytes */
     private Map<String, byte[]> classBytes;
     
-    /**
-     * Creates a new MemoryJavaFileManager
-     * @param fileManager The in memory file manager
-     */
     public MemoryJavaFileManager(JavaFileManager fileManager) {
         super(fileManager);
         classBytes = new HashMap<String, byte[]>();
     }
 
-    /**
-     * Returns the compiled class byte codes
-     * @return a map of compiled class byte codes keyed by the class name
-     */
     public Map<String, byte[]> getClassBytes() {
         return classBytes;
     }
    
-    /**
-     * {@inheritDoc}
-     * @see javax.tools.ForwardingJavaFileManager#close()
-     */
     @Override
 	public void close() throws IOException {
         classBytes = new HashMap<String, byte[]>();
     }
 
-    /**
-     * {@inheritDoc}
-     * @see javax.tools.ForwardingJavaFileManager#flush()
-     */
     @Override
 	public void flush() throws IOException {
     }
 
     /**
-     * <p>Title: StringInputBuffer</p>
-     * <p>Description: A file object used to represent Java source coming from a string.</p> 
-     * <p>Project: <a href="https://github.com/nickman/javax-scripting">JSR-233 Java Scripting</a></p>
-     * <p>Packaged and maintained by Whitehead (nwhitehead AT heliosdev DOT org)</p>
-     * <p><code>com.sun.script.java.MemoryJavaFileManager.StringInputBuffer</code></p>
+     * 
+     * @author alex
+     *
      */
     private static class StringInputBuffer extends SimpleJavaFileObject {
         final String code;
@@ -99,11 +76,9 @@ public final class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaF
     }
 
     /**
-     * <p>Title: ClassOutputBuffer</p>
-     * <p>Description: A file object that stores Java bytecode into the classBytes map.</p> 
-     * <p>Project: <a href="https://github.com/nickman/javax-scripting">JSR-233 Java Scripting</a></p>
-     * <p>Packaged and maintained by Whitehead (nwhitehead AT heliosdev DOT org)</p>
-     * <p><code>com.sun.script.java.MemoryJavaFileManager.ClassOutputBuffer</code></p>
+     * 
+     * @author alex
+     *
      */
     private class ClassOutputBuffer extends SimpleJavaFileObject {
         private String name;
@@ -127,10 +102,8 @@ public final class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaF
     }
     
     /**
-     * {@inheritDoc}
-     * @see javax.tools.ForwardingJavaFileManager#getJavaFileForOutput(javax.tools.JavaFileManager.Location, java.lang.String, javax.tools.JavaFileObject.Kind, javax.tools.FileObject)
+     * 
      */
-    @Override
 	public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location,
                                     String className,
                                     Kind kind,
@@ -141,10 +114,6 @@ public final class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaF
 		return super.getJavaFileForOutput(location, className, kind, sibling);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see javax.tools.ForwardingJavaFileManager#getClassLoader(javax.tools.JavaFileManager.Location)
-     */
 	@Override
 	public ClassLoader getClassLoader(Location location) {
 		return new java.security.SecureClassLoader() {

@@ -12,6 +12,11 @@ import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 
+/**
+ * 
+ * @author alex
+ *
+ */
 public class MainController implements PropertyChangeListener{
 	
 	private final MainFrame view;
@@ -32,11 +37,11 @@ public class MainController implements PropertyChangeListener{
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unused")
 				String compileOutput = "";
 				try {
 					compileOutput = new DynamicCompiler().compile("Main", view.getEditor().getText());
 				} catch (Exception ex) {
-					System.out.println(compileOutput);
 					ex.printStackTrace();
 				} finally {
 					System.out.println("Compile DONE");

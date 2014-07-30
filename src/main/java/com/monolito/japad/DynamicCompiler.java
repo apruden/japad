@@ -13,6 +13,11 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
+/**
+ * 
+ * @author alex
+ *
+ */
 public class DynamicCompiler {
 
 	/**
@@ -27,25 +32,13 @@ public class DynamicCompiler {
 	 * @throws InvocationTargetException 
 	 * @throws IllegalArgumentException 
 	 */
-	public String compile(String fullName, String src) throws InstantiationException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
+	public String compile(String fullName, String src) throws InstantiationException, IllegalAccessException,
+	ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-
-		// We get an instance of JavaCompiler. Then
-		// we create a file manager
-		// (our custom implementation of it)
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		JavaFileManager fileManager = new MemoryJavaFileManager(compiler.getStandardFileManager(null, null, null));
-
-		// Dynamic compiling requires specifying
-		// a list of "files" to compile. In our case
-		// this is a list containing one "file" which is in our case
-		// our own implementation (see details below)
 		List<JavaFileObject> jfiles = new ArrayList<>();
 		jfiles.add(MemoryJavaFileManager.makeStringSource(fullName + ".java", src));
-
-		// We specify a task to the compiler. Compiler should use our file
-		// manager and our list of "files".
-		// Then we run the compilation with call()
 		CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, jfiles);
 		task.call();
 
@@ -60,6 +53,8 @@ public class DynamicCompiler {
 	      sb.append(diagnostic.getSource() + "\n");
 	      sb.append(diagnostic.getMessage(null) + "\n");
 	    }
+	    
+	    System.out.println(sb.toString());
 
 		Method main = fileManager.getClassLoader(null).loadClass("Main").getMethod("main");
 		main.invoke(null);
