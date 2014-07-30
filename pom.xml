@@ -19,6 +19,13 @@
 			<artifactId>rsyntaxtextarea</artifactId>
 			<version>2.5.3</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>LATEST</version>
+			<scope>system</scope>
+			<systemPath>${java.home}/../db/lib/derby.jar</systemPath>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

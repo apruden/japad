@@ -6,13 +6,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.StringReader;
-import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -45,14 +41,15 @@ public class MainFrame extends JFrame {
 	private final RSyntaxTextArea editor;
 	private final JTree tree;
 	private final DefaultMutableTreeNode top;
-	private static final Color BACKGROUND = new Color(0x29,0x31,0x34);
+	private static final Color BACKGROUND = new Color(0x29, 0x31, 0x34);
 	private static final Font FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
-	
+
 	/**
 	 * 
 	 */
 	public MainFrame() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("//test\n");
 		sb.append("import com.monolito.japad.App;\n\n");
 		sb.append("public class Main {\n");
 		sb.append("\tpublic static void main() {\n");
@@ -66,7 +63,7 @@ public class MainFrame extends JFrame {
 		this.editor.setAntiAliasingEnabled(true);
 		this.editor.setFont(MainFrame.FONT);
 		InputStream in = getClass().getResourceAsStream("/dark.xml");
-		
+
 		try {
 			Theme theme = Theme.load(in);
 			theme.apply(this.editor);
@@ -76,9 +73,12 @@ public class MainFrame extends JFrame {
 
 		this.editor.setText(sb.toString());
 		this.editor.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK),
+				KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0),
 				"compile");
-
+		this.editor.getInputMap().put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK),
+				"save");
+		
 		RTextScrollPane sp = new RTextScrollPane(this.editor);
 		sp.setFoldIndicatorEnabled(true);
 		// cp.add(sp, BorderLayout.CENTER);
@@ -87,20 +87,22 @@ public class MainFrame extends JFrame {
 		DefaultTreeModel model = new DefaultTreeModel(this.top, true);
 		this.tree = new JTree(model);
 		this.tree.setMinimumSize(new Dimension(100, 500));
-		this.tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		this.tree.getSelectionModel().setSelectionMode(
+				TreeSelectionModel.SINGLE_TREE_SELECTION);
 		this.tree.setBackground(MainFrame.BACKGROUND);
 
 		JScrollPane treeView = new JScrollPane(this.tree);
 		// cp.add(treeView, BorderLayout.EAST);
 
 		final JTextArea output = new JTextArea(10, 100);
-		
+
 		output.setFont(MainFrame.FONT);
 		output.setBackground(MainFrame.BACKGROUND);
 		output.setForeground(Color.WHITE);
 		JScrollPane outputSp = new JScrollPane(output);
 
-		JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sp, treeView);
+		JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sp,
+				treeView);
 		topPane.setBorder(null);
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
@@ -152,5 +154,13 @@ public class MainFrame extends JFrame {
 			model.insertNodeInto(new DefaultMutableTreeNode(item, true),
 					this.top, this.top.getChildCount());
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void clearItems() {
+		this.top.removeAllChildren();
+		((DefaultTreeModel)this.tree.getModel()).reload();
 	}
 }

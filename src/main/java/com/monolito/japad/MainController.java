@@ -4,6 +4,9 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
@@ -22,9 +25,14 @@ public class MainController implements PropertyChangeListener{
 	private final MainFrame view;
 	private final SketchModel model;
 	
-	public MainController(MainFrame mainFrame, SketchModel model) {
+	/**
+	 * 
+	 * @param mainFrame
+	 * @param sketchModel
+	 */
+	public MainController(MainFrame mainFrame, SketchModel sketchModel) {
 		this.view = mainFrame;
-		this.model = model;
+		this.model = sketchModel;
 		
 		this.view.getEditor().getActionMap().put("compile", new AbstractAction() {
 			/**
@@ -39,6 +47,8 @@ public class MainController implements PropertyChangeListener{
 			public void actionPerformed(ActionEvent e) {
 				@SuppressWarnings("unused")
 				String compileOutput = "";
+				model.clearWatches();
+				
 				try {
 					compileOutput = new DynamicCompiler().compile("Main", view.getEditor().getText());
 				} catch (Exception ex) {
@@ -46,6 +56,28 @@ public class MainController implements PropertyChangeListener{
 				} finally {
 					System.out.println("Compile DONE");
 				}
+			}
+		});
+		
+		this.view.getEditor().getActionMap().put("save", new AbstractAction() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+		            String dbURL = "jdbc:derby:data/history;create=true";
+		            Connection conn = DriverManager.getConnection(dbURL);
+
+		            if (conn != null) {
+		                System.out.println("Connected to database #1");
+		            }
+		        } catch (SQLException ex) {
+		            ex.printStackTrace();
+		        }
 			}
 		});
 		
@@ -95,7 +127,12 @@ public class MainController implements PropertyChangeListener{
 		if(evt.getPropertyName().equals("watches")) {
 			@SuppressWarnings("unchecked")
 			ArrayList<Object> val = (ArrayList<Object>)evt.getNewValue();
-			this.view.addItem(null, val.get(val.size() - 1));
+
+			if (!val.isEmpty()) {
+				this.view.addItem(null, val.get(val.size() - 1));
+			} else {
+				this.view.clearItems();
+			}
 		}
 	}
 }

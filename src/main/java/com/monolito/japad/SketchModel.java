@@ -33,6 +33,14 @@ public class SketchModel {
 		this.watches.add(obj);
 		this.propertyChangeSupport.firePropertyChange("watches", null, this.watches);
 	}
+	
+	/**
+	 * 
+	 */
+	public void clearWatches() {
+		this.watches.clear();
+		this.propertyChangeSupport.firePropertyChange("watches", null, this.watches);
+	}
 
 	/**
 	 * 
