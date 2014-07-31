@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 
+import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -17,7 +18,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
-import javax.swing.text.JTextComponent;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
@@ -73,12 +74,11 @@ public class MainFrame extends JFrame {
 
 		this.editor.setText(sb.toString());
 		this.editor.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0),
-				"compile");
+				KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "compile");
 		this.editor.getInputMap().put(
 				KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK),
 				"save");
-		
+
 		RTextScrollPane sp = new RTextScrollPane(this.editor);
 		sp.setFoldIndicatorEnabled(true);
 		// cp.add(sp, BorderLayout.CENTER);
@@ -125,18 +125,26 @@ public class MainFrame extends JFrame {
 
 	/**
 	 * 
-	 * @return
+	 * @param action
 	 */
-	public JTextComponent getEditor() {
-		return this.editor;
+	protected void addActionListener(String action, Action listener) {
+		this.editor.getActionMap().put(action, listener);
+	}
+
+	/**
+	 * 
+	 * @param listener
+	 */
+	protected void addTreeWillExpandListener(TreeWillExpandListener listener) {
+		this.tree.addTreeWillExpandListener(listener);
 	}
 
 	/**
 	 * 
 	 * @return
 	 */
-	public JTree getTreeView() {
-		return this.tree;
+	protected String getSource() {
+		return this.editor.getText();
 	}
 
 	/**
@@ -155,12 +163,12 @@ public class MainFrame extends JFrame {
 					this.top, this.top.getChildCount());
 		}
 	}
-	
+
 	/**
 	 * 
 	 */
 	public void clearItems() {
 		this.top.removeAllChildren();
-		((DefaultTreeModel)this.tree.getModel()).reload();
+		((DefaultTreeModel) this.tree.getModel()).reload();
 	}
 }

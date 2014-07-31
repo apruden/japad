@@ -18,121 +18,131 @@ import javax.swing.tree.ExpandVetoException;
 /**
  * 
  * @author alex
- *
+ * 
  */
-public class MainController implements PropertyChangeListener{
-	
+public class MainController implements PropertyChangeListener {
+
 	private final MainFrame view;
 	private final SketchModel model;
-	
+
 	/**
 	 * 
 	 * @param mainFrame
 	 * @param sketchModel
 	 */
-	public MainController(MainFrame mainFrame, SketchModel sketchModel) {
-		this.view = mainFrame;
-		this.model = sketchModel;
-		
-		this.view.getEditor().getActionMap().put("compile", new AbstractAction() {
-			/**
-			 * 
-			 */
+	public MainController(MainFrame view, SketchModel model) {
+		this.view = view;
+		this.model = model;
+
+		this.view.addActionListener("compile", new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
-			/*
-			 * (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unused")
-				String compileOutput = "";
-				model.clearWatches();
-				
-				try {
-					compileOutput = new DynamicCompiler().compile("Main", view.getEditor().getText());
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				} finally {
-					System.out.println("Compile DONE");
-				}
+				onCompile();
 			}
 		});
-		
-		this.view.getEditor().getActionMap().put("save", new AbstractAction() {
-			
-			/**
-			 * 
-			 */
+
+		this.view.addActionListener("save", new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-		            String dbURL = "jdbc:derby:data/history;create=true";
-		            Connection conn = DriverManager.getConnection(dbURL);
-
-		            if (conn != null) {
-		                System.out.println("Connected to database #1");
-		            }
-		        } catch (SQLException ex) {
-		            ex.printStackTrace();
-		        }
+				onSave();
 			}
 		});
-		
-		this.view.getTreeView().addTreeWillExpandListener(new TreeWillExpandListener() {
-			
+
+		this.view.addTreeWillExpandListener(new TreeWillExpandListener() {
+
 			@Override
 			public void treeWillExpand(TreeExpansionEvent event)
 					throws ExpandVetoException {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode)event.getPath().getLastPathComponent();
-				Object obj = node.getUserObject();
-				
-				if (obj == null) { //top
-					return;
-				}
-
-				for(Field f:obj.getClass().getDeclaredFields()) {
-					f.setAccessible(true);
-					Object value = null;
-
-					if (obj != null) {
-						try {
-							value = f.get(obj);
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						}
-					}
-
-					//System.out.format("%s %s: <%s> %s", f.getType(), f.getName(), value.getClass(), value);
-					view.addItem((DefaultMutableTreeNode)event.getPath().getLastPathComponent(), value);
-				}
+				onTreeWillExpand((DefaultMutableTreeNode) event.getPath()
+						.getLastPathComponent());
 			}
-			
+
 			@Override
 			public void treeWillCollapse(TreeExpansionEvent event)
 					throws ExpandVetoException {
-				//do nothing
+				return;
 			}
 		});
-		
+
 		this.model.addPropertyChangeListener(this);
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if(evt.getPropertyName().equals("watches")) {
+		if (evt.getPropertyName().equals("watches")) {
 			@SuppressWarnings("unchecked")
-			ArrayList<Object> val = (ArrayList<Object>)evt.getNewValue();
+			ArrayList<Object> val = (ArrayList<Object>) evt.getNewValue();
 
 			if (!val.isEmpty()) {
 				this.view.addItem(null, val.get(val.size() - 1));
 			} else {
 				this.view.clearItems();
 			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	protected void onTreeWillExpand(DefaultMutableTreeNode node) {
+		Object obj = node.getUserObject();
+
+		if (obj == null) { // top
+			return;
+		}
+
+		for (Field f : obj.getClass().getDeclaredFields()) {
+			f.setAccessible(true);
+			Object value = null;
+
+			if (obj != null) {
+				try {
+					value = f.get(obj);
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+
+			this.view.addItem(node, value);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	protected void onSave() {
+		try {
+			String dbURL = "jdbc:derby:data/history;create=true";
+			Connection conn = DriverManager.getConnection(dbURL);
+
+			if (conn != null) {
+				System.out.println("Connected to database #1");
+			}
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	protected void onCompile() {
+		@SuppressWarnings("unused")
+		String compileOutput = "";
+		this.model.clearWatches();
+
+		try {
+			compileOutput = new DynamicCompiler().compile("Main",
+					this.view.getSource());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			System.out.println("Compile DONE");
 		}
 	}
 }
