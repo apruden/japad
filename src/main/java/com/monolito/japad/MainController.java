@@ -6,6 +6,8 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -48,6 +50,15 @@ public class MainController implements PropertyChangeListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				onSave();
+			}
+		});
+
+		this.view.addActionListener("load", new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onLoad();
 			}
 		});
 
@@ -116,18 +127,43 @@ public class MainController implements PropertyChangeListener {
 	 * 
 	 */
 	protected void onSave() {
-		try {
-			String dbURL = "jdbc:derby:data/history;create=true";
-			Connection conn = DriverManager.getConnection(dbURL);
+		String dbURL = "jdbc:derby:data/history;create=true";
+		String id = this.view.getSource().split("\n")[0].replace("/", "");
 
+		try(Connection conn = DriverManager.getConnection(dbURL)){
 			if (conn != null) {
-				System.out.println("Connected to database #1");
+				PreparedStatement stm = conn.prepareStatement("insert into japad.ENTRIES values (?, ?)");
+				stm.setString(1, id);
+				stm.setString(2, this.view.getSource());
+				stm.executeUpdate();
 			}
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
 	}
 
+	/**
+	 * 
+	 */
+	protected void onLoad() {
+		String dbURL = "jdbc:derby:data/history;create=true";
+		String id = this.view.getSource().split("\n")[0].replace("/", "");
+
+		try(Connection conn = DriverManager.getConnection(dbURL)){
+			if (conn != null) {
+				PreparedStatement stm = conn.prepareStatement("select CODE from japad.ENTRIES where id = ?");
+				stm.setString(1, id);
+				ResultSet rs = stm.executeQuery();
+
+				if(rs.next()) {
+					this.view.setSource(rs.getString(1));
+				}
+			}
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 	/**
 	 * 
 	 */

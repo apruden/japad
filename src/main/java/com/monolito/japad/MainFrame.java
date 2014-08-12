@@ -78,6 +78,9 @@ public class MainFrame extends JFrame {
 		this.editor.getInputMap().put(
 				KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK),
 				"save");
+		this.editor.getInputMap().put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_MASK),
+				"load");
 
 		RTextScrollPane sp = new RTextScrollPane(this.editor);
 		sp.setFoldIndicatorEnabled(true);
@@ -86,12 +89,12 @@ public class MainFrame extends JFrame {
 		this.top = new DefaultMutableTreeNode();
 		DefaultTreeModel model = new DefaultTreeModel(this.top, true);
 		this.tree = new JTree(model);
-		this.tree.setMinimumSize(new Dimension(100, 500));
 		this.tree.getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
 		this.tree.setBackground(MainFrame.BACKGROUND);
 
 		JScrollPane treeView = new JScrollPane(this.tree);
+		treeView.setPreferredSize(new Dimension(100, 300));
 		// cp.add(treeView, BorderLayout.EAST);
 
 		final JTextArea output = new JTextArea(10, 100);
@@ -147,6 +150,14 @@ public class MainFrame extends JFrame {
 		return this.editor.getText();
 	}
 
+	/**
+	 * 
+	 * @param source
+	 */
+	protected void setSource(String source) {
+		this.editor.setText(source);
+	}
+	
 	/**
 	 * 
 	 * @param parent
