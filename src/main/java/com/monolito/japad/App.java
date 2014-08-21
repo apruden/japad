@@ -37,6 +37,12 @@ public class App {
 	 * 
 	 */
 	private static void createTables() {
+		try {
+			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
+
 		String createString = "create table " + "japad.ENTRIES "
 				+ "(ID varchar(100) NOT NULL, " + "CODE long varchar, "
 				+ "PRIMARY KEY (ID))";

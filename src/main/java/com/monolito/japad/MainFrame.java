@@ -43,7 +43,7 @@ public class MainFrame extends JFrame {
 	private final JTree tree;
 	private final DefaultMutableTreeNode top;
 	private static final Color BACKGROUND = new Color(0x29, 0x31, 0x34);
-	private static final Font FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+	private static final Font FONT = new Font(Font.MONOSPACED, Font.PLAIN, 16);
 
 	/**
 	 * 

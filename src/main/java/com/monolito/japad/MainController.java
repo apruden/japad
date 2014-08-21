@@ -132,11 +132,23 @@ public class MainController implements PropertyChangeListener {
 
 		try(Connection conn = DriverManager.getConnection(dbURL)){
 			if (conn != null) {
-				PreparedStatement stm = conn.prepareStatement("insert into japad.ENTRIES values (?, ?)");
-				stm.setString(1, id);
-				stm.setString(2, this.view.getSource());
-				stm.executeUpdate();
+				PreparedStatement selstm = conn.prepareStatement("select count(id) from japad.ENTRIES where id = ?");
+				selstm.setString(1, id);
+				
+				if(!selstm.execute()) {
+					PreparedStatement stm = conn.prepareStatement("insert into japad.ENTRIES values (?, ?)");
+					stm.setString(1, id);
+					stm.setString(2, this.view.getSource());
+					stm.executeUpdate();
+				} else {
+					PreparedStatement stm = conn.prepareStatement("update japad.ENTRIES set code = ? where id = ?");
+					stm.setString(1, this.view.getSource());
+					stm.setString(2, id);
+					stm.executeUpdate();
+				}
 			}
+
+			System.out.format("saved: %s", id);
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}

@@ -2,7 +2,7 @@
 <!DOCTYPE RSyntaxTheme SYSTEM "theme.dtd">
 
 <RSyntaxTheme version="1.0">
-	<!-- <baseFont family="monospace" size="14"/> -->
+	<baseFont family="monospace" size="16"/>
 	<background color="293134"/>
 	<caret color="c1cbc2"/>
 	<selection useFG="false" bg="404E51" roundedEdges="false"/>

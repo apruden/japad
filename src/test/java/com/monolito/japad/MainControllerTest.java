@@ -30,7 +30,7 @@ public final class MainControllerTest {
 			
 			@Mock
 			String getSource() {
-				return "";
+				return "public class Main { public static void main() {} }";
 			}
 		}.getMockInstance();
 		
