@@ -127,28 +127,31 @@ public class MainController implements PropertyChangeListener {
 	 * 
 	 */
 	protected void onSave() {
-		String dbURL = "jdbc:derby:data/history;create=true";
+		String dbURL = "jdbc:derby:data/history;";
 		String id = this.view.getSource().split("\n")[0].replace("/", "");
 
 		try(Connection conn = DriverManager.getConnection(dbURL)){
 			if (conn != null) {
-				PreparedStatement selstm = conn.prepareStatement("select count(id) from japad.ENTRIES where id = ?");
+				PreparedStatement selstm = conn.prepareStatement("select count(*) as rowcount from japad.ENTRIES where id = ?");
 				selstm.setString(1, id);
-				
-				if(!selstm.execute()) {
+				ResultSet rs = selstm.executeQuery();
+				rs.next();
+				int count = rs.getInt("rowcount") ;
+				rs.close() ;
+				if(count == 0) {
 					PreparedStatement stm = conn.prepareStatement("insert into japad.ENTRIES values (?, ?)");
 					stm.setString(1, id);
 					stm.setString(2, this.view.getSource());
 					stm.executeUpdate();
+					System.out.format("saved: %s", id);
 				} else {
 					PreparedStatement stm = conn.prepareStatement("update japad.ENTRIES set code = ? where id = ?");
 					stm.setString(1, this.view.getSource());
 					stm.setString(2, id);
 					stm.executeUpdate();
+					System.out.format("updated: %s", id);
 				}
 			}
-
-			System.out.format("saved: %s", id);
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
@@ -158,7 +161,7 @@ public class MainController implements PropertyChangeListener {
 	 * 
 	 */
 	protected void onLoad() {
-		String dbURL = "jdbc:derby:data/history;create=true";
+		String dbURL = "jdbc:derby:data/history;";
 		String id = this.view.getSource().split("\n")[0].replace("/", "");
 
 		try(Connection conn = DriverManager.getConnection(dbURL)){
@@ -168,6 +171,7 @@ public class MainController implements PropertyChangeListener {
 				ResultSet rs = stm.executeQuery();
 
 				if(rs.next()) {
+					System.out.println("found");
 					this.view.setSource(rs.getString(1));
 				}
 			}

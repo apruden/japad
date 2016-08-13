@@ -19,6 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.event.TreeWillExpandListener;
+import javax.swing.text.DefaultCaret;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
@@ -51,7 +52,7 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("//test\n");
-		sb.append("import com.monolito.japad.App;\n\n");
+		sb.append("import static com.monolito.japad.App.*;\n\n");
 		sb.append("public class Main {\n");
 		sb.append("\tpublic static void main() {\n");
 		sb.append("\t}\n}\n");
@@ -103,6 +104,8 @@ public class MainFrame extends JFrame {
 		output.setBackground(MainFrame.BACKGROUND);
 		output.setForeground(Color.WHITE);
 		JScrollPane outputSp = new JScrollPane(output);
+		DefaultCaret caret = (DefaultCaret) output.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sp,
 				treeView);
@@ -157,7 +160,7 @@ public class MainFrame extends JFrame {
 	protected void setSource(String source) {
 		this.editor.setText(source);
 	}
-	
+
 	/**
 	 * 
 	 * @param parent

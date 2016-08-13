@@ -84,4 +84,12 @@ public class App {
 					value.getClass(), value);
 		}
 	}
+
+	/**
+	 * 
+	 * @param obj
+	 */
+	public static void dump(Object obj) {
+		System.out.println(obj.toString());
+	}
 }
