@@ -7,7 +7,6 @@ import javax.swing.JTextArea;
 
 /**
  * 
- * @author alex
  *
  */
 public class TextAreaOutputStream extends OutputStream {
